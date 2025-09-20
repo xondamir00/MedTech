@@ -8,18 +8,18 @@ import { SignIn } from '../pages/auth/SignIn';
 import { AdminPanel } from '../pages/admin/AdminPanel';
 import { DoctorPanel } from '../pages/doctor/DoctorPanel';
 import { ReceptionPanel } from '../pages/reception/ReceptionPanel';
+import UserPage from '../pages/admin/user';
 
 export const AppRoutes: React.FC = () => {
   const { isAuthenticated, user } = useAuthStore();
 
   const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => (
-    <div className="min-h-screen bg-gray-50">
-      <Navbar />
-      <div className="flex">
-        <Sidebar />
-        <main className="flex-1">
-          {children}
-        </main>
+    <div className="min-h-screen flex bg-gray-50">
+      <Sidebar />
+
+      <div className="flex flex-col flex-1">
+        <Navbar /> 
+        <main className="flex-1 p-4 overflow-y-auto">{children}</main>
       </div>
     </div>
   );
@@ -36,37 +36,41 @@ export const AppRoutes: React.FC = () => {
   return (
     <Layout>
       <Routes>
-        <Route path="/signin" element={<Navigate to={`/${user?.role}`} replace />} />
-        
-        <Route 
-          path="/admin" 
+        <Route
+          path="/signin"
+          element={<Navigate to={`/${user?.role}`} replace />}
+        />
+
+        <Route
+          path="/admin"
           element={
             <ProtectedRoute allowedRoles={['admin']}>
               <AdminPanel />
             </ProtectedRoute>
-          } 
+          }
         />
-        
-        <Route 
-          path="/doctor" 
+
+        <Route
+          path="/doctor"
           element={
             <ProtectedRoute allowedRoles={['doctor']}>
               <DoctorPanel />
             </ProtectedRoute>
-          } 
+          }
         />
-        
-        <Route 
-          path="/reception" 
+
+        <Route
+          path="/reception"
           element={
             <ProtectedRoute allowedRoles={['reception']}>
               <ReceptionPanel />
             </ProtectedRoute>
-          } 
+          }
         />
-        
+
         <Route path="/" element={<Navigate to={`/${user?.role}`} replace />} />
         <Route path="*" element={<Navigate to={`/${user?.role}`} replace />} />
+        <Route path="/user" element={<UserPage />} />
       </Routes>
     </Layout>
   );

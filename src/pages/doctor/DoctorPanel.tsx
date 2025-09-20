@@ -3,21 +3,20 @@ import { useAuthStore } from '../../store/authStore';
 import { usePatientsStore } from '../../store/patientsStore';
 import { useAppointmentsStore } from '../../store/appointmentsStore';
 import { useRecordsStore } from '../../store/recordsStore';
-import { useUsersStore } from '../../store/usersStore';
 import { Card } from '../../components/ui/Card';
 import { Table } from '../../components/ui/Table';
 import { Button } from '../../components/ui/Button';
 import { Modal } from '../../components/ui/Modal';
 import { Input } from '../../components/ui/Input';
 import { Users, Calendar, FileText, Plus } from 'lucide-react';
-import { formatDate, formatDateTime } from '../../utils/helpers';
+import { formatDate } from '../../utils/helpers';
 
 export const DoctorPanel: React.FC = () => {
   const { user } = useAuthStore();
   const { patients } = usePatientsStore();
   const { appointments } = useAppointmentsStore();
   const { records, addRecord } = useRecordsStore();
-  const { users } = useUsersStore();
+ 
   
   const [showRecordModal, setShowRecordModal] = useState(false);
   const [selectedPatient, setSelectedPatient] = useState<string>('');
@@ -28,16 +27,13 @@ export const DoctorPanel: React.FC = () => {
     notes: ''
   });
 
-  // Filter data for current doctor
   const doctorPatients = patients.filter(p => p.doctorId === user?.id);
   const doctorAppointments = appointments.filter(a => a.doctorId === user?.id);
   const doctorRecords = records.filter(r => r.doctorId === user?.id);
 
-  // Get today's appointments
   const today = new Date().toISOString().split('T')[0];
   const todayAppointments = doctorAppointments.filter(a => a.date === today);
 
-  // Get this week's appointments
   const getWeekStart = (date: Date) => {
     const d = new Date(date);
     const day = d.getDay();
@@ -116,7 +112,6 @@ export const DoctorPanel: React.FC = () => {
         <p className="text-gray-600">Welcome, Dr. {user?.name}</p>
       </div>
 
-      {/* Statistics Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
         <Card>
           <div className="flex items-center">
@@ -159,7 +154,6 @@ export const DoctorPanel: React.FC = () => {
         </Card>
       </div>
 
-      {/* Today's Appointments */}
       <div className="mb-8">
         <Card title="Today's Appointments">
           {todayAppointments.length > 0 ? (
@@ -170,7 +164,6 @@ export const DoctorPanel: React.FC = () => {
         </Card>
       </div>
 
-      {/* This Week's Appointments */}
       <div className="mb-8">
         <Card title="This Week's Appointments">
           {thisWeekAppointments.length > 0 ? (
@@ -181,7 +174,6 @@ export const DoctorPanel: React.FC = () => {
         </Card>
       </div>
 
-      {/* My Patients */}
       <div className="mb-8">
         <Card title="My Patients">
           {doctorPatients.length > 0 ? (
@@ -192,7 +184,6 @@ export const DoctorPanel: React.FC = () => {
         </Card>
       </div>
 
-      {/* My Appointments */}
       <div className="mb-8">
         <Card title="My Appointments">
           {doctorAppointments.length > 0 ? (
@@ -203,7 +194,6 @@ export const DoctorPanel: React.FC = () => {
         </Card>
       </div>
 
-      {/* Medical Records */}
       <div className="mb-8">
         <Card title="Medical Records">
           <div className="flex justify-between items-center mb-4">
@@ -224,7 +214,6 @@ export const DoctorPanel: React.FC = () => {
         </Card>
       </div>
 
-      {/* Add Record Modal */}
       <Modal
         isOpen={showRecordModal}
         onClose={() => setShowRecordModal(false)}

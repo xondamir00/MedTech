@@ -10,6 +10,26 @@ import { Input } from '../../components/ui/Input';
 import { Users, Calendar, Plus } from 'lucide-react';
 import { formatDate } from '../../utils/helpers';
 
+// ✅ Tiplar
+interface PatientForm {
+  name: string;
+  email: string;
+  phone: string;
+  dateOfBirth: string;
+  gender: 'male' | 'female' | 'other';
+  address: string;
+  doctorId: string;
+}
+
+interface AppointmentForm {
+  patientId: string;
+  doctorId: string;
+  date: string;
+  time: string;
+  type: string;
+  notes: string;
+}
+
 export const ReceptionPanel: React.FC = () => {
   const { patients, addPatient } = usePatientsStore();
   const { appointments, addAppointment } = useAppointmentsStore();
@@ -18,17 +38,17 @@ export const ReceptionPanel: React.FC = () => {
   const [showPatientModal, setShowPatientModal] = useState(false);
   const [showAppointmentModal, setShowAppointmentModal] = useState(false);
   
-  const [patientForm, setPatientForm] = useState({
+  const [patientForm, setPatientForm] = useState<PatientForm>({
     name: '',
     email: '',
     phone: '',
     dateOfBirth: '',
-    gender: 'male' as 'male' | 'female' | 'other',
+    gender: 'male',
     address: '',
     doctorId: ''
   });
 
-  const [appointmentForm, setAppointmentForm] = useState({
+  const [appointmentForm, setAppointmentForm] = useState<AppointmentForm>({
     patientId: '',
     doctorId: '',
     date: '',
@@ -108,7 +128,7 @@ export const ReceptionPanel: React.FC = () => {
         <p className="text-gray-600">Manage patients and appointments</p>
       </div>
 
-      {/* Statistics Cards */}
+      {/* Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
         <Card>
           <div className="flex items-center">
@@ -141,7 +161,7 @@ export const ReceptionPanel: React.FC = () => {
         </Card>
       </div>
 
-      {/* Doctors List */}
+      {/* Available Doctors */}
       <div className="mb-8">
         <Card title="Available Doctors">
           {doctors.length > 0 ? (
@@ -254,7 +274,7 @@ export const ReceptionPanel: React.FC = () => {
             </label>
             <select
               value={patientForm.gender}
-              onChange={(e) => setPatientForm(prev => ({ ...prev, gender: e.target.value as any }))}
+              onChange={(e) => setPatientForm(prev => ({ ...prev, gender: e.target.value as PatientForm['gender'] }))}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               <option value="male">Male</option>

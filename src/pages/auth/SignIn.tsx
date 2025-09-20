@@ -5,7 +5,7 @@ import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
 import { validateEmail } from '../../utils/helpers';
 
-export const SignIn: React.FC = () => {
+export const SignIn= () => {
   const [formData, setFormData] = useState({
     email: '',
     password: ''
@@ -15,7 +15,6 @@ export const SignIn: React.FC = () => {
   
   const { login, isAuthenticated, user } = useAuthStore();
 
-  // Redirect if already authenticated
   if (isAuthenticated && user) {
     return <Navigate to={`/${user.role}`} replace />;
   }
@@ -24,7 +23,6 @@ export const SignIn: React.FC = () => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
     
-    // Clear error when user starts typing
     if (errors[name]) {
       setErrors(prev => ({ ...prev, [name]: '' }));
     }
@@ -60,9 +58,10 @@ export const SignIn: React.FC = () => {
       if (!success) {
         setErrors({ general: 'Invalid email or password' });
       }
-    } catch (error) {
-      setErrors({ general: 'Login failed. Please try again.' });
-    } finally {
+    } catch (error: unknown) {
+  const message = error instanceof Error ? error.message : "Login failed. Please try again.";
+  setErrors({ general: message });
+} finally {
       setLoading(false);
     }
   };
@@ -116,11 +115,7 @@ export const SignIn: React.FC = () => {
             </Button>
           </form>
           
-          <div className="mt-6 p-4 bg-gray-50 rounded-lg">
-            <h3 className="text-sm font-medium text-gray-700 mb-2">Default Admin Account:</h3>
-            <p className="text-sm text-gray-600">Email: admin@gmail.com</p>
-            <p className="text-sm text-gray-600">Password: 12345678</p>
-          </div>
+       
         </div>
       </div>
     </div>

@@ -1,51 +1,39 @@
-import React from 'react';
+import React from "react";
 
-interface Column {
+interface Column<T = any> {
   key: string;
   label: string;
-  render?: (value: any, row: any) => React.ReactNode;
+  render?: (value: any, row: T) => React.ReactNode;
 }
 
-interface TableProps {
-  data: any[];
-  columns: Column[];
+interface TableProps<T = any> {
+  data: T[];
+  columns: Column<T>[];
   className?: string;
 }
 
-export const Table: React.FC<TableProps> = ({ data, columns, className = '' }) => {
+export const Table: React.FC<TableProps> = ({ data, columns, }) => {
+console.log(data)
   return (
-    <div className={`overflow-x-auto ${className}`}>
-      <table className="min-w-full bg-white border border-gray-200 rounded-lg">
-        <thead>
-          <tr className="bg-gray-50">
-            {columns.map((column) => (
-              <th
-                key={column.key}
-                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b border-gray-200"
-              >
-                {column.label}
-              </th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {data.map((row, index) => (
-            <tr key={index} className="hover:bg-gray-50 transition-colors">
-              {columns.map((column) => (
-                <td
-                  key={column.key}
-                  className="px-6 py-4 whitespace-nowrap border-b border-gray-200"
-                >
-                  {column.render 
-                    ? column.render(row[column.key], row)
-                    : row[column.key]
-                  }
-                </td>
-              ))}
-            </tr>
+    <div className={`grid grid-cols-1 xl:grid-cols-3 gap-4 md:grid-cols-2 `}>
+      {data.map((row, index) => (
+        <div
+          key={index}
+          className="bg-white  w-full shadow-2xl border  rounded-lg p-4 hover:shadow-md transition"
+        >
+          {columns.map((column) => (
+            <div
+              key={column.key}
+              className="flex  justify-between items-center py-2 border-b last:border-b-0"
+            >
+              <span className="font-medium text-gray-600 mr-1">{column.label}</span>
+              <span className="text-gray-800  overflow-x-auto">
+                {column.render ? column.render(row[column.key], row) : row[column.key]}
+              </span>
+            </div>
           ))}
-        </tbody>
-      </table>
+        </div>
+      ))}
     </div>
   );
 };
