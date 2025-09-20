@@ -19,7 +19,7 @@ console.log(data)
       {data.map((row, index) => (
         <div
           key={index}
-          className="bg-white  w-full shadow-2xl border  rounded-lg p-4 hover:shadow-md transition"
+          className="bg-white  w-full shadow-xl border  rounded-lg p-4 hover:shadow-md transition"
         >
           {columns.map((column) => (
             <div
