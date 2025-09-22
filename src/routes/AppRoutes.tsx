@@ -8,7 +8,8 @@ import { SignIn } from '../pages/auth/SignIn';
 import { AdminPanel } from '../pages/admin/AdminPanel';
 import { DoctorPanel } from '../pages/doctor/DoctorPanel';
 import { ReceptionPanel } from '../pages/reception/ReceptionPanel';
-import UserPage from '../pages/admin/user';
+import UserPage from '../pages/admin/User';
+import Patients from '../pages/reception/patients';
 
 export const AppRoutes: React.FC = () => {
   const { isAuthenticated, user } = useAuthStore();
@@ -71,6 +72,8 @@ export const AppRoutes: React.FC = () => {
         <Route path="/" element={<Navigate to={`/${user?.role}`} replace />} />
         <Route path="*" element={<Navigate to={`/${user?.role}`} replace />} />
         <Route path="/user" element={<UserPage />} />
+        <Route path="/patients" element={<Patients />} />
+          
       </Routes>
     </Layout>
   );

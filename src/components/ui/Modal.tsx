@@ -27,7 +27,6 @@ export const Modal: React.FC<ModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
-      {/* Orqa fon oq blur bilan */}
       <div 
         className="fixed inset-0 bg-white/30 backdrop-blur-sm transition-opacity"
         onClick={onClose}

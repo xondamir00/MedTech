@@ -120,9 +120,8 @@ const UserPage = () => {
         <div className="flex flex-wrap justify-end gap-1">
           <MuiButton
             size="small"
-            variant='contained'
+            variant="contained"
             color="primary"
-           
             onClick={() => handleEdit(row)}
             startIcon={<Edit size={16} />}
           >
@@ -131,7 +130,7 @@ const UserPage = () => {
           <MuiButton
             size="small"
             color="error"
-            variant='contained'
+            variant="contained"
             onClick={() => handleDelete(row.id)}
             startIcon={<Trash2 size={16} />}
           >
@@ -144,8 +143,10 @@ const UserPage = () => {
 
   return (
     <>
-      <div className="mb-8 flex justify-between items-center">
-        <h1 className="text-3xl font-bold text-gray-900">User Management</h1>
+      <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
+          User Management
+        </h1>
         <MuiButton
           variant="contained"
           color="primary"
@@ -180,7 +181,7 @@ const UserPage = () => {
         onClose={handleCloseModal}
         fullWidth
         maxWidth="sm"
-        fullScreen={fullScreen} 
+        fullScreen={fullScreen}
       >
         <DialogTitle>
           {editingUser ? "Edit User" : "Add New User"}
@@ -188,31 +189,31 @@ const UserPage = () => {
         <form onSubmit={handleSubmit}>
           <DialogContent className="space-y-4">
             <TextField
-            
               fullWidth
               label="Full Name"
               name="name"
+              sx={{marginY:1}}
               value={formData.name}
               onChange={handleChange}
               error={!!errors.name}
               helperText={errors.name}
             />
             <TextField
-            sx={{marginTop:3}}
               fullWidth
               label="Email Address"
               type="email"
               name="email"
+                sx={{marginY:1}}
               value={formData.email}
               onChange={handleChange}
               error={!!errors.email}
               helperText={errors.email}
             />
             <TextField
-            sx={{marginTop:3}}
               fullWidth
               label="Password"
               type="password"
+                sx={{marginY:1}}
               name="password"
               value={formData.password}
               onChange={handleChange}
@@ -220,9 +221,9 @@ const UserPage = () => {
               helperText={errors.password}
             />
             <TextField
-            sx={{marginTop:3}}
               select
               fullWidth
+                sx={{marginY:1}}
               label="Role"
               name="role"
               value={formData.role}
@@ -232,11 +233,28 @@ const UserPage = () => {
               <MenuItem value="reception">Reception</MenuItem>
             </TextField>
           </DialogContent>
-          <DialogActions sx={{margin:2}}>
-            <MuiButton onClick={handleCloseModal} variant='contained' color="error">
+          <DialogActions
+            sx={{
+              padding: theme.spacing(2),
+              display: "flex",
+              flexDirection: fullScreen ? "column" : "row",
+              gap: 1,
+            }}
+          >
+            <MuiButton
+              onClick={handleCloseModal}
+              variant="contained"
+              color="error"
+              fullWidth={fullScreen}
+            >
               Cancel
             </MuiButton>
-            <MuiButton type="submit" variant="contained" color="primary">
+            <MuiButton
+              type="submit"
+              variant="contained"
+              color="primary"
+              fullWidth={fullScreen}
+            >
               {editingUser ? "Update User" : "Add User"}
             </MuiButton>
           </DialogActions>
