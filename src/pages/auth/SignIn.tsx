@@ -5,14 +5,11 @@ import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
 import { validateEmail } from '../../utils/helpers';
 
-export const SignIn= () => {
-  const [formData, setFormData] = useState({
-    email: '',
-    password: ''
-  });
+export const SignIn = () => {
+  const [formData, setFormData] = useState({ email: '', password: '' });
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [loading, setLoading] = useState(false);
-  
+
   const { login, isAuthenticated, user } = useAuthStore();
 
   if (isAuthenticated && user) {
@@ -21,50 +18,47 @@ export const SignIn= () => {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-    
+    setFormData((prev) => ({ ...prev, [name]: value }));
     if (errors[name]) {
-      setErrors(prev => ({ ...prev, [name]: '' }));
+      setErrors((prev) => ({ ...prev, [name]: '' }));
     }
   };
 
   const validateForm = () => {
     const newErrors: { [key: string]: string } = {};
-
     if (!formData.email.trim()) {
       newErrors.email = 'Email is required';
     } else if (!validateEmail(formData.email)) {
       newErrors.email = 'Invalid email format';
     }
-
     if (!formData.password.trim()) {
       newErrors.password = 'Password is required';
     }
-
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
     if (!validateForm()) return;
 
     setLoading(true);
-    
     try {
       const success = await login(formData.email, formData.password);
-      
       if (!success) {
         setErrors({ general: 'Invalid email or password' });
       }
     } catch (error: unknown) {
-  const message = error instanceof Error ? error.message : "Login failed. Please try again.";
-  setErrors({ general: message });
-} finally {
+      const message =
+        error instanceof Error
+          ? error.message
+          : 'Login failed. Please try again.';
+      setErrors({ general: message });
+    } finally {
       setLoading(false);
     }
   };
+
 
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
@@ -77,7 +71,7 @@ export const SignIn= () => {
             Healthcare Management System
           </p>
         </div>
-        
+
         <div className="bg-white p-8 rounded-lg shadow-md">
           <form className="space-y-6" onSubmit={handleSubmit}>
             {errors.general && (
@@ -85,7 +79,7 @@ export const SignIn= () => {
                 {errors.general}
               </div>
             )}
-            
+
             <Input
               label="Email Address"
               type="email"
@@ -95,7 +89,7 @@ export const SignIn= () => {
               error={errors.email}
               placeholder="admin@gmail.com"
             />
-            
+
             <Input
               label="Password"
               type="password"
@@ -103,19 +97,13 @@ export const SignIn= () => {
               value={formData.password}
               onChange={handleChange}
               error={errors.password}
-              placeholder="12345678"
+              placeholder="********"
             />
 
-            <Button
-              type="submit"
-              className="w-full"
-              disabled={loading}
-            >
+            <Button type="submit" className="w-full" disabled={loading}>
               {loading ? 'Signing in...' : 'Sign In'}
             </Button>
           </form>
-          
-       
         </div>
       </div>
     </div>

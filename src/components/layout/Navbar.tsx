@@ -1,15 +1,50 @@
-import React, { useState } from 'react';
-import { useAuthStore } from '../../store/authStore';
-import { Button } from '../ui/Button';
-import { LogOut, User, Menu } from 'lucide-react';
-import { getRoleDisplayName } from '../../utils/helpers';
+import React, { useState } from "react";
+import { useAuthStore } from "../../store/authStore";
+
+import {
+  Button,
+  Menu,
+  MenuItem,
+  IconButton,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  TextField,
+} from "@mui/material";
+import { User, LogOut, KeyRound } from "lucide-react";
 
 export const Navbar: React.FC = () => {
-  const { user, logout } = useAuthStore();
-  const [menuOpen, setMenuOpen] = useState(false);
+  const { user, logout, changePassword } = useAuthStore();
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const [openDialog, setOpenDialog] = useState(false);
+
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+
+  const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleMenuClose = () => {
+    setAnchorEl(null);
+  };
 
   const handleLogout = () => {
+    handleMenuClose();
     logout();
+  };
+
+  const handlePasswordChange = async () => {
+    try {
+      await changePassword(currentPassword, newPassword);
+      alert("Password changed successfully!");
+      setOpenDialog(false);
+      setCurrentPassword("");
+      setNewPassword("");
+    } catch (err) {
+      alert("Failed to change password");
+    }
   };
 
   return (
@@ -21,64 +56,74 @@ export const Navbar: React.FC = () => {
             MedTech
           </h1>
 
-          {/* Desktop */}
+          {/* User menu */}
           {user && (
-            <div className="hidden md:flex items-center space-x-4">
-              <div className="flex items-center space-x-2 text-gray-700">
-                <User size={20} />
-                <span className="font-medium">{user.name}</span>
-                <span className="text-sm text-gray-500">
-                  ({getRoleDisplayName(user.role)})
-                </span>
-              </div>
-              <Button
-                variant="secondary"
-                size="sm"
-                onClick={handleLogout}
-                className="flex items-center space-x-2"
+            <>
+              <IconButton onClick={handleMenuOpen}>
+                <User size={22} />
+              </IconButton>
+              <Menu
+                anchorEl={anchorEl}
+                open={Boolean(anchorEl)}
+                onClose={handleMenuClose}
               >
-                <LogOut size={16} />
-                <span>Logout</span>
-              </Button>
-            </div>
-          )}
-
-          {/* Mobile */}
-          {user && (
-            <div className="md:hidden">
-              <button
-                onClick={() => setMenuOpen(!menuOpen)}
-                className="p-2 rounded-md border border-gray-300 hover:bg-gray-100"
-              >
-                <Menu size={20} />
-              </button>
-
-              {menuOpen && (
-                <div className="absolute right-4 top-16 w-48 bg-white border border-gray-200 shadow-lg rounded-md p-3 space-y-2 z-50">
-                  <div className="flex items-center space-x-2 text-gray-700">
-                    <User size={18} />
-                    <div className="flex flex-col">
-                      <span className="font-medium text-sm">{user.name}</span>
-                      <span className="text-xs text-gray-500">
-                        {getRoleDisplayName(user.role)}
-                      </span>
-                    </div>
+                <MenuItem disabled>
+                  <div className="flex flex-col ">
+                    <span className="text-xl ">{user.role}</span>
+                    <span className="font-medium text-xl">{user.email}</span>
                   </div>
-                  <Button
-                    variant="secondary"
-                    size="sm"
-                    onClick={handleLogout}
-                    className="w-full flex items-center space-x-2"
-                  >
-                    <LogOut size={16} />
-                    <span>Logout</span>
-                  </Button>
-                </div>
-              )}
-            </div>
+                </MenuItem>
+
+                <MenuItem
+                  onClick={() => {
+                    setOpenDialog(true);
+                    handleMenuClose();
+                  }}
+                >
+                  <KeyRound size={16} className="mr-2" /> Change Password
+                </MenuItem>
+
+                <MenuItem onClick={handleLogout}>
+                  <LogOut size={16} className="mr-2" /> Logout
+                </MenuItem>
+              </Menu>
+            </>
           )}
         </div>
       </div>
+
+      {/* Change Password Dialog */}
+      <Dialog open={openDialog} onClose={() => setOpenDialog(false)}>
+        <DialogTitle>Change Password</DialogTitle>
+        <DialogContent className="space-y-4">
+          <TextField
+            margin="dense"
+            label="Current Password"
+            type="password"
+            fullWidth
+            value={currentPassword}
+            onChange={(e) => setCurrentPassword(e.target.value)}
+          />
+          <TextField
+            margin="dense"
+            label="New Password"
+            type="password"
+            fullWidth
+            value={newPassword}
+            onChange={(e) => setNewPassword(e.target.value)}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setOpenDialog(false)}>Cancel</Button>
+          <Button
+            onClick={handlePasswordChange}
+            variant="contained"
+            color="primary"
+          >
+            Save
+          </Button>
+        </DialogActions>
+      </Dialog>
     </nav>
   );
 };
