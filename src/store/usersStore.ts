@@ -1,37 +1,84 @@
-import { create } from 'zustand';
-import type{ UsersStore, User } from '../types';
-import { generateId } from '../utils/helpers';
+// src/store/usersStore.ts
+import { create } from "zustand";
+import type { User, CreateUserDto } from "../types";
+
+const API_URL = "https://supercultivated-neumic-rose.ngrok-free.dev/users";
+
+interface UsersStore {
+  users: User[];
+  fetchUsers: () => Promise<void>;
+  addUser: (userData: CreateUserDto) => Promise<void>;
+  updateUser: (id: string, userData: Partial<User>) => Promise<void>;
+  deleteUser: (id: string) => Promise<void>;
+}
 
 export const useUsersStore = create<UsersStore>((set, get) => ({
-  users: JSON.parse(localStorage.getItem('medtech-users') || '[]'),
+  users: [],
 
-  addUser: (userData) => {
-    const newUser: User = {
-      ...userData,
-      id: generateId(),
-      createdAt: new Date().toISOString(),
-    };
-
-    const updatedUsers = [...get().users, newUser];
-    localStorage.setItem('medtech-users', JSON.stringify(updatedUsers));
-    set({ users: updatedUsers });
+  fetchUsers: async () => {
+    try {
+      const res = await fetch(API_URL, {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+      });
+      const data = await res.json();
+      set({ users: Array.isArray(data) ? data : data.users });
+    } catch (err) {
+      console.error("❌ Fetch users error:", err);
+    }
   },
 
-  updateUser: (id, userData) => {
-    const updatedUsers = get().users.map(user => 
-      user.id === id ? { ...user, ...userData } : user
-    );
-    localStorage.setItem('medtech-users', JSON.stringify(updatedUsers));
-    set({ users: updatedUsers });
+  addUser: async (userData: CreateUserDto) => {
+    try {
+      const res = await fetch(API_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        
+        },
+        body: JSON.stringify(userData),
+      });
+      if (!res.ok) throw new Error("Failed to add user");
+      const newUser: User = await res.json();
+      set({ users: [...get().users, newUser] });
+      alert("✅ Foydalanuvchi qo‘shildi!");
+    } catch (err) {
+      console.error("❌ Add user error:", err);
+    }
+  },
+  
+  updateUser: async (id, userData) => {
+    try {
+      const res = await fetch(`${API_URL}/${id}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+        body: JSON.stringify(userData),
+      });
+      if (!res.ok) throw new Error("Failed to update user");
+      const updatedUser: User = await res.json();
+      set({
+        users: get().users.map((u) => (u.id === id ? updatedUser : u)),
+      });
+      alert("✏️ Foydalanuvchi yangilandi!");
+    } catch (err) {
+      console.error("❌ Update user error:", err);
+    }
   },
 
-  deleteUser: (id) => {
-    const updatedUsers = get().users.filter(user => user.id !== id);
-    localStorage.setItem('medtech-users', JSON.stringify(updatedUsers));
-    set({ users: updatedUsers });
-  },
-
-  getUsersByRole: (role) => {
-    return get().users.filter(user => user.role === role);
+  deleteUser: async (id) => {
+    try {
+      const res = await fetch(`${API_URL}/${id}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+      });
+      if (!res.ok) throw new Error("Failed to delete user");
+      set({ users: get().users.filter((u) => u.id !== id) });
+      alert("🗑️ Foydalanuvchi o‘chirildi!");
+    } catch (err) {
+      console.error("❌ Delete user error:", err);
+    }
   },
 }));

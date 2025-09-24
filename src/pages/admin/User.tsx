@@ -10,7 +10,7 @@ import {
   useMediaQuery,
   useTheme,
 } from "@mui/material";
-import { type User } from "../../types";
+import { type User, type CreateUserDto } from "../../types";
 import {
   getRoleDisplayName,
   validateEmail,
@@ -30,10 +30,11 @@ const UserPage = () => {
 
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [formData, setFormData] = useState({
-    name: "",
+    firstName: "",
+    lastName: "",
     email: "",
     password: "",
-    role: "doctor" as "doctor" | "reception",
+    role: "DOCTOR" as "DOCTOR" | "RECEPTION",
   });
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
 
@@ -48,7 +49,11 @@ const UserPage = () => {
 
   const validateForm = () => {
     const newErrors: { [key: string]: string } = {};
-    if (!formData.name.trim()) newErrors.name = "Name is required";
+    if (!formData.firstName.trim())
+      newErrors.firstName = "First name is required";
+    if (!formData.lastName.trim())
+      newErrors.lastName = "Last name is required";
+
     if (!formData.email.trim()) {
       newErrors.email = "Email is required";
     } else if (!validateEmail(formData.email)) {
@@ -60,41 +65,62 @@ const UserPage = () => {
     ) {
       newErrors.email = "Email already exists";
     }
+
     if (!formData.password.trim()) {
       newErrors.password = "Password is required";
     } else if (!validatePassword(formData.password)) {
       newErrors.password = "Password must be at least 8 characters";
     }
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!validateForm()) return;
+const payload: CreateUserDto = {
+  email: formData.email,
+  firstName: formData.firstName,
+  lastName: formData.lastName,
+  role: formData.role,
+  temporaryPassword: formData.password,
+};
 
-    if (editingUser) {
-      updateUser(editingUser.id, formData);
-    } else {
-      addUser(formData);
+
+    try {
+      if (editingUser) {
+        await updateUser(editingUser.id, payload);
+      } else {
+        await addUser(payload);
+      }
+      handleCloseModal();
+    } catch (err) {
+      console.error("User save error:", err);
     }
-    handleCloseModal();
   };
 
   const handleCloseModal = () => {
     setShowModal(false);
     setEditingUser(null);
-    setFormData({ name: "", email: "", password: "", role: "doctor" });
+    setFormData({
+      firstName: "",
+      lastName: "",
+      email: "",
+      password: "",
+      role: "DOCTOR",
+    });
     setErrors({});
   };
 
   const handleEdit = (user: User) => {
     setEditingUser(user);
     setFormData({
-      name: user.name,
+      firstName: user.firstName,
+      lastName: user.lastName,
       email: user.email,
-      password: user.password,
-      role: user.role as "doctor" | "reception",
+      password: user.temporaryPassword || "",
+      role: user.role as "DOCTOR" | "RECEPTION",
     });
     setShowModal(true);
   };
@@ -105,9 +131,9 @@ const UserPage = () => {
   };
 
   const columns = [
-    { key: "name", label: "Name" },
+    { key: "firstName", label: "First Name" },
+    { key: "lastName", label: "Last Name" },
     { key: "email", label: "Email" },
-    { key: "password", label: "Password" },
     {
       key: "role",
       label: "Role",
@@ -176,6 +202,7 @@ const UserPage = () => {
         message="Do you really want to delete this user?"
       />
 
+      {/* Modal */}
       <Dialog
         open={showModal}
         onClose={handleCloseModal}
@@ -190,20 +217,27 @@ const UserPage = () => {
           <DialogContent className="space-y-4">
             <TextField
               fullWidth
-              label="Full Name"
-              name="name"
-              sx={{marginY:1}}
-              value={formData.name}
+              label="First Name"
+              name="firstName"
+              value={formData.firstName}
               onChange={handleChange}
-              error={!!errors.name}
-              helperText={errors.name}
+              error={!!errors.firstName}
+              helperText={errors.firstName}
+            />
+            <TextField
+              fullWidth
+              label="Last Name"
+              name="lastName"
+              value={formData.lastName}
+              onChange={handleChange}
+              error={!!errors.lastName}
+              helperText={errors.lastName}
             />
             <TextField
               fullWidth
               label="Email Address"
               type="email"
               name="email"
-                sx={{marginY:1}}
               value={formData.email}
               onChange={handleChange}
               error={!!errors.email}
@@ -213,7 +247,6 @@ const UserPage = () => {
               fullWidth
               label="Password"
               type="password"
-                sx={{marginY:1}}
               name="password"
               value={formData.password}
               onChange={handleChange}
@@ -223,14 +256,13 @@ const UserPage = () => {
             <TextField
               select
               fullWidth
-                sx={{marginY:1}}
               label="Role"
               name="role"
               value={formData.role}
               onChange={handleChange}
             >
-              <MenuItem value="doctor">Doctor</MenuItem>
-              <MenuItem value="reception">Reception</MenuItem>
+              <MenuItem value="DOCTOR">Doctor</MenuItem>
+              <MenuItem value="RECEPTION">Reception</MenuItem>
             </TextField>
           </DialogContent>
           <DialogActions

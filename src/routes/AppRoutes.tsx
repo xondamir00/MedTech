@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
 import { ProtectedRoute } from '../components/common/ProtectedRoute';
@@ -12,18 +12,27 @@ import UserPage from '../pages/admin/User';
 import Patients from '../pages/reception/patients';
 
 export const AppRoutes: React.FC = () => {
-  const { isAuthenticated, user } = useAuthStore();
+  const { isAuthenticated, user, fetchMe, isLoading } = useAuthStore();
+  console.log(isAuthenticated,'s');
+  
+  useEffect(() => {
+    fetchMe(); 
+  }, [fetchMe]);
 
   const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => (
     <div className="min-h-screen flex bg-gray-50">
       <Sidebar />
-
       <div className="flex flex-col flex-1">
-        <Navbar /> 
+        <Navbar />
         <main className="flex-1 p-4 overflow-y-auto">{children}</main>
       </div>
     </div>
   );
+
+  // 👇 Muhimi: fetchMe tugaguncha signIn page ko‘rinmasligi kerak
+  if (isLoading) {
+    return <div className="flex justify-center items-center h-screen">Loading...</div>;
+  }
 
   if (!isAuthenticated) {
     return (
@@ -41,7 +50,6 @@ export const AppRoutes: React.FC = () => {
           path="/signin"
           element={<Navigate to={`/${user?.role}`} replace />}
         />
-
         <Route
           path="/admin"
           element={
@@ -50,7 +58,6 @@ export const AppRoutes: React.FC = () => {
             </ProtectedRoute>
           }
         />
-
         <Route
           path="/doctor"
           element={
@@ -59,7 +66,6 @@ export const AppRoutes: React.FC = () => {
             </ProtectedRoute>
           }
         />
-
         <Route
           path="/reception"
           element={
@@ -68,12 +74,10 @@ export const AppRoutes: React.FC = () => {
             </ProtectedRoute>
           }
         />
-
         <Route path="/" element={<Navigate to={`/${user?.role}`} replace />} />
         <Route path="*" element={<Navigate to={`/${user?.role}`} replace />} />
         <Route path="/user" element={<UserPage />} />
         <Route path="/patients" element={<Patients />} />
-          
       </Routes>
     </Layout>
   );
