@@ -5,20 +5,23 @@ import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
 import { validateEmail } from '../../utils/helpers';
 
-export const SignIn = () => {
+export const SignIn: React.FC = () => {
   const [formData, setFormData] = useState({ email: '', password: '' });
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [loading, setLoading] = useState(false);
 
   const { login, isAuthenticated, user } = useAuthStore();
 
-  if (isAuthenticated && user) {
+  // Agar login qilingan bo‘lsa → roliga qarab redirect
+  if (isAuthenticated && user?.role) {
     return <Navigate to={`/${user.role}`} replace />;
   }
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+
+    // Errorni tozalash
     if (errors[name]) {
       setErrors((prev) => ({ ...prev, [name]: '' }));
     }
@@ -26,14 +29,17 @@ export const SignIn = () => {
 
   const validateForm = () => {
     const newErrors: { [key: string]: string } = {};
+
     if (!formData.email.trim()) {
       newErrors.email = 'Email is required';
     } else if (!validateEmail(formData.email)) {
       newErrors.email = 'Invalid email format';
     }
+
     if (!formData.password.trim()) {
       newErrors.password = 'Password is required';
     }
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -59,7 +65,6 @@ export const SignIn = () => {
     }
   };
 
-
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
@@ -74,6 +79,7 @@ export const SignIn = () => {
 
         <div className="bg-white p-8 rounded-lg shadow-md">
           <form className="space-y-6" onSubmit={handleSubmit}>
+            {/* General error */}
             {errors.general && (
               <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
                 {errors.general}

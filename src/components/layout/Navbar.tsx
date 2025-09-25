@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useAuthStore } from "../../store/authStore";
 import {
   Button,
@@ -15,13 +15,35 @@ import {
   Typography,
 } from "@mui/material";
 import { User as UserIcon, LogOut, KeyRound } from "lucide-react";
+import type { User } from "../../types";
 
 export const Navbar: React.FC = () => {
-  const { user, logout, changePassword } = useAuthStore();
+  const { logout, changePassword, token } = useAuthStore(); // user olib tashlandi
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [openDialog, setOpenDialog] = useState(false);
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
+  const [userData, setUserData] = useState<any>("");
+console.log(token);
+
+
+ useEffect(() => {
+
+  fetch("https://supercultivated-neumic-rose.ngrok-free.dev/auth/login", {
+    method: "GET", 
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  })
+    .then((res) => {
+      if (!res.ok) throw new Error("Failed to fetch user data");
+      return res.json();
+    })
+    .then((data:User) => setUserData(data))
+    .catch((err) => console.log(err, "fetch user error"));
+}, [token]);
+console.log('data');
+
 
   const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
@@ -50,7 +72,7 @@ export const Navbar: React.FC = () => {
         <div className="flex justify-between items-center h-16">
           <h1 className="text-xl sm:text-2xl font-bold text-blue-600">MedTech</h1>
 
-          {user && (
+          {userData && (
             <>
               {/* Faqat user icon */}
               <IconButton onClick={handleMenuOpen}>
@@ -64,24 +86,20 @@ export const Navbar: React.FC = () => {
                 onClose={handleMenuClose}
                 PaperProps={{ sx: { minWidth: 220 } }}
               >
-              
                 <MenuItem disabled>
                   <div className="flex flex-col">
                     <Typography variant="subtitle1" fontWeight="bold">
-                      {user.firstName ?? " "} {user.lastName ?? ""}
+                      {userData.firstName ?? "Name"} {userData.lastName ?? "Surname"}
                     </Typography>
-                    <Typography variant="h6" sx={{color:"black"}}>
-                      {user.email}
+                    <Typography variant="h6" sx={{ color: "black" }}>
+                      {userData.email}
                     </Typography>
-                    <Typography variant="h6" >
-                      Role: {user.role}
-                    </Typography>
+                    <Typography variant="h6">Role: {userData.role}</Typography>
                   </div>
                 </MenuItem>
 
                 <Divider />
 
-             
                 <MenuItem
                   onClick={() => {
                     setOpenDialog(true);

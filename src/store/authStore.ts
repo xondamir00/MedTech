@@ -23,8 +23,8 @@ export const useAuthStore = create<
       if (!res.ok) return false;
 
       const data = await res.json();
-        console.log(data);
-        
+      console.log('LOGIN RESPONSE:', data);
+
       localStorage.setItem('token', data.access_token);
 
       set({
@@ -48,40 +48,50 @@ export const useAuthStore = create<
 
   fetchMe: async () => {
     const token = localStorage.getItem('token');
+    console.log('FETCH ME TOKEN:', token);
+    
     if (!token) {
-      set({ isLoading: false });
-      return;
+     return set({ isLoading: false });
+      
     }
 
     try {
-      const res = await fetch(
+      const resp = await fetch(
         'https://supercultivated-neumic-rose.ngrok-free.dev/auth/me',
         {
+          method: 'GET',
           headers: { Authorization: `Bearer ${token}` },
         }
       );
 
-      console.log('FETCH ME RESPONSE STATUS:', res.status);
+      
+      
 
-      if (!res.ok) {
+      if (!resp.ok) {
         set({
           user: null,
           isAuthenticated: false,
           token: null,
           isLoading: false,
         });
-        localStorage.removeItem('token');
         return;
       }
 
-      const user: User = await res.json();
+      const data = await resp.json();
+      console.log('FETCH ME DATA:', data);
 
       set({
-        user,
+        user: {
+          ...data,
+          firstName: data.firstName,
+          lastName: data.lastName,
+        } as User,
         isAuthenticated: true,
         token,
         isLoading: false,
       });
+      console.log('User set in store:', get().user);
+      
     } catch (err) {
       console.error('Fetch me error:', err);
       set({ isLoading: false });
